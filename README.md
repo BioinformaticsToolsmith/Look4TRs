@@ -3,9 +3,13 @@
 In order to compile Look4TRs, run the following commands
 
 > cd Look4TRs
+
 > mkdir bin
+
 > cd bin
+
 > cmake ..
+
 > make
 
 GNU g++ must be installed.
