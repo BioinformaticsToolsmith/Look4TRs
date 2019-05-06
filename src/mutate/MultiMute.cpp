@@ -101,7 +101,6 @@ MultiMute::MultiMute(int a, int c, int g, int t, int alloc, bool disable) {
 			maxReverse++;
 		}
 	}
-	//cout << "Max Rev " << maxReverse << " maxDel " << maxDel << " maxTrans " << maxTrans << " maxInsert " << maxInsert << " maxDup " << maxDup << endl;
 }
 
 int MultiMute::getAlignmentLength(){

@@ -9,71 +9,80 @@
 #include "Util.h"
 #include "../exception/InvalidInputException.h"
 
-using namespace exception;
+ using namespace exception;
 
-namespace utility {
+ namespace utility {
 
-Location::Location(int startIn, int endIn) {
-	initialize(startIn, endIn);
-}
+ 	Location::Location(int startIn, int endIn) {
+ 		initialize(startIn, endIn);
+ 	}
 
-Location::Location(const ILocation& cp) {
-	initialize(cp.getStart(), cp.getEnd());
-}
+ 	Location::Location(const ILocation& cp) {
+ 		initialize(cp.getStart(), cp.getEnd());
+ 	}
 
-Location::Location(const ILocation * cp) {
-	initialize(cp->getStart(), cp->getEnd());
-}
+ 	Location::Location(const ILocation * cp) {
+ 		initialize(cp->getStart(), cp->getEnd());
+ 	}
 
-void Location::initialize(int startIn, int endIn) {
-	start = startIn;
-	end = endIn;
-	check();
+ 	void Location::initialize(int startIn, int endIn) {
+ 		start = startIn;
+ 		end = endIn;
+ 		check();
 
-}
+ 	}
 
-void Location::check() {
-	if (start < 0 || end < 0 || start > end) {
-		string msg("Invalid Input. Start is ");
-		msg.append(Util::int2string(start));
-		msg.append(". End is ");
-		msg.append(Util::int2string(end));
-		msg.append(".");
-		throw InvalidInputException(msg);
-	}
-}
+ 	void Location::check() {
+ 		if (start < 0 || end < 0 || start > end) {
+ 			string msg("Invalid Input. Start is ");
+ 			msg.append(Util::int2string(start));
+ 			msg.append(". End is ");
+ 			msg.append(Util::int2string(end));
+ 			msg.append(".");
+ 			throw InvalidInputException(msg);
+ 		}
+ 	}
 
-Location::~Location() {
-}
+ 	Location::~Location() {
+ 	}
 
-int Location::getEnd() const {
-	return end;
-}
+ 	int Location::getEnd() const {
+ 		return end;
+ 	}
 
-int Location::getStart() const {
-	return start;
-}
+ 	int Location::getStart() const {
+ 		return start;
+ 	}
 
-void Location::setEnd(int endIn) {
-	end = endIn;
-	check();
-}
+ 	void Location::setEnd(int endIn) {
+ 		end = endIn;
+ 		check();
+ 	}
 
-void Location::setStart(int startIn) {
-	start = startIn;
-	check();
-}
+ 	void Location::setStart(int startIn) {
+ 		start = startIn;
+ 		check();
+ 	}
 
-int Location::getLength() {
-	return end - start + 1;
-}
+ 	int Location::getLength() {
+ 		return end - start + 1;
+ 	}
 
-string Location::toString() {
-	string msg = (Util::int2string(start));
-	msg.append("-");
-	msg.append(Util::int2string(end));
+ 	string Location::toString() const {
+ 		string msg = (Util::int2string(start));
+ 		msg.append("-");
+ 		msg.append(Util::int2string(end));
 
-	return msg;
-}
+ 		return msg;
+ 	}
 
-}
+ 	// Make this a method
+ 	bool Location::operator< (const Location& b){
+ 		if (getStart() == b.getStart()){
+ 			return getEnd() < b.getEnd();
+ 		} else {
+ 			return getStart() < b.getStart();
+ 		}
+ 	}
+
+ }

@@ -33,7 +33,6 @@ HMM::HMM(HMM& other) {
 
 	stateNumber = other.getStateNumber();
 	positiveStateNumber = other.getPositiveStateNumber();
-	base = other.getBase();
 	minusInf = other.getMinusInf();
 	normalized = other.normalized;
 }
@@ -41,29 +40,17 @@ HMM::HMM(HMM& other) {
 HMM::HMM(string hmmFile) {
 	normalized = false;
 
-	// ToDo: Fix this operation
-	string msg("Reading HMM from file is temporarily disabled.");
-	throw InvalidOperationException(msg);
-
 	ifstream in(hmmFile.c_str());
 	in.precision(PRECISION);
 
 	if (in) {
 		string token;
-		bool isLogBase = false;
 		bool isStates = false;
 		bool isPriors = false;
 		bool isTransition = false;
 
 		while (in >> token) {
-			if (isLogBase) {
-				base = atof(token.c_str());
-
-				checkBase(base);
-
-				logBase = log(base);
-				isLogBase = false;
-			} else if (isStates) {
+			 if (isStates) {
 				stateNumber = atoi(token.c_str());
 				positiveStateNumber = stateNumber / 2;
 				initializeHelper();
@@ -99,9 +86,7 @@ HMM::HMM(string hmmFile) {
 				isTransition = false;
 			}
 
-			if (token.compare("Base") == 0) {
-				isLogBase = true;
-			} else if (token.compare("States") == 0) {
+			if (token.compare("States") == 0) {
 				isStates = true;
 			} else if (token.compare("Priors") == 0) {
 				isPriors = true;
@@ -122,20 +107,16 @@ HMM::HMM(string hmmFile) {
 /**
  * Use this constructor to train on the entire genome.
  * The client has to call train on each chromosome.
- * base is the threshold.
 
  */
-HMM::HMM(double base, int stateNumber) :
+HMM::HMM(int stateNumber) :
 		PRECISION(numeric_limits<double>::digits10 + 1) {
 	normalized = false;
-	initialize(base, stateNumber);
+	initialize(stateNumber);
 }
 
-void HMM::initialize(double baseIn, int stateNumberIn) {
-	base = baseIn;
-	checkBase(base);
+void HMM::initialize(int stateNumberIn) {
 
-	logBase = log(baseIn);
 
 	stateNumber = stateNumberIn;
 	// Make sure that the number of states is even and > 0
@@ -148,15 +129,15 @@ void HMM::initialize(double baseIn, int stateNumberIn) {
 	initializeHelper();
 }
 
-/**
- * This method makes sure that the base is not zero.
- */
-void HMM::checkBase(double base) {
-	if (fabs(base - 0.0) < std::numeric_limits<double>::epsilon()) {
-		string msg("The base cannot be zero because log(base) is not defined.");
-		throw InvalidInputException(msg);
-	}
-}
+// /**
+//  * This method makes sure that the base is not zero.
+//  */
+// void HMM::checkBase(double base) {
+// 	if (fabs(base - 0.0) < std::numeric_limits<double>::epsilon()) {
+// 		string msg("The base cannot be zero because log(base) is not defined.");
+// 		throw InvalidInputException(msg);
+// 	}
+// }
 
 void HMM::initializeHelper() {
 	// Ensure that the number of the states is positive
@@ -411,8 +392,6 @@ void HMM::print() {
 void HMM::print(string hmo) {
 	ofstream out(hmo.c_str());
 	out.precision(PRECISION);
-
-	out << "Base" << endl << base << endl;
 
 	out << "States" << endl << stateNumber << endl;
 
@@ -774,9 +753,6 @@ int HMM::getPositiveStateNumber() {
 	return positiveStateNumber;
 }
 
-double HMM::getBase() {
-	return base;
-}
 
 double HMM::getMinusInf() {
 	return minusInf;

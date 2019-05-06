@@ -26,25 +26,25 @@ namespace motif{
       rowB = (int*) calloc(i + 1, sizeof(int));
       rowB[0] = 0;
       for(int j = 1; j < i; j++){
-	int s;
-	if(seq[i] == b[j]){
-	  s = 1;
-	} else {					
-	  s = -1;
-	}
-	
-	rowB[j] = std::max(0, std::max(rowA[j] - 2, std::max(rowA[j - 1] + s, rowB[j - 1] - 2)) );
-      }
-      delete[] rowA;
-      rowA = rowB;
-    }
-    cost = rowB;
-  }
-  
+       int s;
+       if(seq[i] == b[j]){
+         s = 1;
+       } else {					
+         s = -1;
+       }
+       
+       rowB[j] = std::max(0, std::max(rowA[j] - 2, std::max(rowA[j - 1] + s, rowB[j - 1] - 2)) );
+     }
+     delete[] rowA;
+     rowA = rowB;
+   }
+   cost = rowB;
+ }
+ 
   /*
    *  This method will return the last row of the 2d matrix.
    */
-  std::vector<int> RepeatAlignE::getLastRow(){
+   std::vector<int> RepeatAlignE::getLastRow(){
     
     std::vector<int> lastRow;
     for (int i = 0; i < seq.size(); i++) {

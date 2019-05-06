@@ -2,7 +2,6 @@ using namespace std;
 
 #include "FindMotif.h"
 
-std::unordered_map<int, int> frequency;
 
 namespace motif {
 
@@ -10,6 +9,7 @@ namespace motif {
 		Predictor<int> * predIn) {
 		sequence = sequenceIn;
 		threshold = thresholdIn;
+		smoothingWindow = -1;
 		h1 = ">Sequence";
 
 		isFound = false;
@@ -22,6 +22,7 @@ namespace motif {
 		searchMicro();
 	}
 
+	
 
 	FindMotif::~FindMotif() {
 		delete seqPoint;
@@ -74,15 +75,12 @@ namespace motif {
  */
 
  void FindMotif::greedyConfirmation(vector<string> * copyList) {
-
+ 	static int callCount = 0;
  	if (copyList->empty()) {
  		std::cerr << "The given copyList in the greedyConfirmation is empty!"
  		<< std::endl;
  		throw std::exception();
  	}
-
-	// Make a one-digit chromosome of the exact repeat
- 	string h2(">Exact Repeat");
 
 	// Find the best exact repeat, i.e. (motif)
  	pair<string, double> result;
@@ -90,41 +88,53 @@ namespace motif {
  	result.second = -1;
 
 	// Collects the distances into a list
- 	for (int i = 0; i < copyList->size(); i++) {
+ 	for (int i = 0; i < copyList->size(); i++, callCount++) {
+
  		string copy = copyList->at(i);
+
 
 		// Make exact repeat, i.e. (motif)n
  		string w = makeExact(copy, sequence.size());
 
- 		ChromosomeOneDigit wCode(w, h2);
+ 		ChromosomeOneDigit wCode(w, copy);
 
  		Point<int> * wPoint = pred->get_point(&wCode);
 
  		double similarity = pred->similarity(seqPoint, wPoint);
  		delete wPoint;
 
- 		if (fabs(result.second - similarity)
- 			< std::numeric_limits<double>::epsilon()
- 			&& copy.size() < result.first.size()) {
+ 		if (fabs(result.second - similarity) < std::numeric_limits<double>::epsilon() && copy.size() < result.first.size()) {
  			result.first = copy;
- 		result.second = similarity;
- 	} else if (similarity > result.second) {
- 		result.first = copy;
- 		result.second = similarity;
+ 			result.second = similarity;
+ 		} 
+ 		else if (similarity > result.second) {
+ 			result.first = copy;
+ 			result.second = similarity;
+ 		}
  	}
+
+ 	if (result.second < 0 || result.first.size() == 0) {
+ 		if(result.second == -1){
+ 			std::cerr << "The score is -1" << std::endl;
+ 		}
+ 		if(result.first == ""){
+ 			std::cerr << "The result is an empty string" << std::endl;
+ 		}
+ 		for(int i = 0; i < copyList->size(); i++){
+ 			std::cerr << copyList->at(i) << ", ";
+ 		}
+ 		std::cerr << std::endl;
+ 		std::cerr << "The result from greedyConfirmation is an empty string!"
+ 		<< std::endl;
+ 		throw std::exception();
+ 	}
+
+ 	foundMotif = result.first;
+ 	identityScore = result.second;
+ 	isFound = result.second > threshold;
+
  }
 
- if (result.second < 0 || result.first.size() == 0) {
- 	std::cerr << "The result from greedyConfirmation is an empty string!"
- 	<< std::endl;
- 	throw std::exception();
- }
-
- foundMotif = result.first;
- identityScore = result.second;
- isFound = result.second > threshold;
-
-}
 
 
 /*
@@ -134,7 +144,7 @@ namespace motif {
  Author: Alfredo Velasco
  */
  void FindMotif::searchMicro() {
-	unordered_map<string, int> wordSet; // Set of all words seen in the sequence
+	map<string, int> wordSet; // Set of all words seen in the sequence
 	vector<string> * wordList = new vector<string>();
 	for (int size = 1; size <= MICRO_MAX_SIZE && size <= sequence.size();
 		size++) {
@@ -172,7 +182,6 @@ namespace motif {
 	}
 	delete wordList;
 }
-
 
 bool FindMotif::getIsFound() {
 	return isFound;

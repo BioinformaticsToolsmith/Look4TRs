@@ -19,6 +19,5 @@ InvalidInputException::InvalidInputException(string msg) {
 }
 
 InvalidInputException::~InvalidInputException() {
-	// TODO Auto-generated destructor stub
 }
 }

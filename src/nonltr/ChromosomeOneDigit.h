@@ -12,36 +12,37 @@
 #include "Chromosome.h"
 
 namespace nonltr {
-class ChromosomeOneDigit: public Chromosome {
+	class ChromosomeOneDigit: public Chromosome {
 
-private:
-	bool canClean = false;
+	private:
+		bool canClean = false;
 
 	/* Fields */
-	map<char, char> * codes;
+		map<char, char> * codes;
 
 	/* Methods */
-	void help();
-	void buildCodes();
-	void encodeNucleotides();
+		void help();
+		void buildCodes();
+		void encodeNucleotides();
 
-	void makeReverse();
-	void makeComplement();
-	void reverseSegments();
+		void makeReverse();
+		void makeComplement();
+		void reverseSegments();
 
-public:
+	public:
 	/* Methods */
-	ChromosomeOneDigit();
-	ChromosomeOneDigit(string);
-	ChromosomeOneDigit(string, int, int);
-	ChromosomeOneDigit(string&, string&);
-	ChromosomeOneDigit(string&, string&, int);
-	virtual ~ChromosomeOneDigit();
-	virtual void finalize();
+		ChromosomeOneDigit();
+		ChromosomeOneDigit(string);
+		ChromosomeOneDigit(string, int, int);
+		ChromosomeOneDigit(string&, string&);
+		ChromosomeOneDigit(string&, string&, int);
+		virtual ~ChromosomeOneDigit();
+		virtual void finalize();
+		virtual std::vector<std::string> * getSequenceFromLocations(std::string);
 
-	void makeR();
-	void makeRC();
-};
+		void makeR();
+		void makeRC();
+	};
 }
 
 #endif /* CHROMOSOMEONEDIGIT_H_ */

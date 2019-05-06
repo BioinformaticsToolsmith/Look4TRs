@@ -6,18 +6,20 @@
 #include <random>
 #include <math.h>
 
-
-ChromosomeTR::ChromosomeTR(int nIn, ChromosomeOneDigit* oChromIn,
-	char unreadIn, int length, int minMotifIn, int maxMotifIn, int init_regIn): ChromosomeRandom(nIn, oChromIn, unreadIn, length){
+ChromosomeTR::ChromosomeTR(int nIn, ChromosomeOneDigit *oChromIn,
+	char unreadIn, int length, int seed_in) : ChromosomeRandom(nIn, oChromIn, unreadIn, length)
+{
 	regionList = new std::vector<ILocation *>();
 	repeatList = new std::vector<std::string>();
-	init_reg = init_regIn;
-	minMotif = minMotifIn;
-	maxMotif = maxMotifIn;
-	shuffle();
-
+	baseCountOChrom = oChromIn->getBaseCount();
+	int sum = 0;
+	for(int i = 0; i < baseCountOChrom->size(); i++){
+		sum += baseCountOChrom->at(i);
+	}
+	for(int i = 0; i < baseCountOChrom->size(); i++){
+		baseCountOChrom->at(i) = (baseCountOChrom->at(i) * 100) / sum;
+	}
 }
-
 
 ChromosomeTR::~ChromosomeTR(){
 	Util::deleteInVector(regionList);
@@ -25,9 +27,10 @@ ChromosomeTR::~ChromosomeTR(){
 	delete regionList;
 }
 
-void ChromosomeTR::removeLocations(const std::vector<Location *> * deleteList)
+void ChromosomeTR::removeLocations(const std::vector<Location *> *deleteList)
 {
-	if(deleteList->back()->getStart() > rBase->size() || deleteList->back()->getEnd() > rBase->size()){
+	if (deleteList->back()->getStart() > rBase->size() || deleteList->back()->getEnd() > rBase->size())
+	{
 		std::cerr << "The delete list has an out of bound region" << deleteList->back()->toString() << "!" << std::endl;
 		throw std::exception();
 	}
@@ -36,160 +39,124 @@ void ChromosomeTR::removeLocations(const std::vector<Location *> * deleteList)
 	std::default_random_engine generator(0);
 	std::uniform_int_distribution<int> exactRepeatDistr(0, 3);
 
+	for (int index = 0; index < rBase->size(); index++)
+	{
 
-	for(int index = 0; index < rBase->size(); index++){
+		if (region != deleteList->end())
+		{
 
-		if(region != deleteList->end()){
-
-			if(index < (*region)->getStart()){
+			if (index < (*region)->getStart())
+			{
 				index = (*region)->getStart() - 1;
-			} else if (index > (*region)->getEnd()){
+			}
+			else if (index > (*region)->getEnd())
+			{
 				index--;
 				region++;
-			} else if(index >= (*region)->getStart()){
-				rBase->at(index) = (char) exactRepeatDistr(generator);
-			} 
-
-		} else {
+			}
+			else if (index >= (*region)->getStart())
+			{
+				rBase->at(index) = (char)exactRepeatDistr(generator);
+			}
+		}
+		else
+		{
 			break;
 		}
 	}
 }
 
-
-void ChromosomeTR::replaceSeq(std::string& subSeq, Location& l){
+void ChromosomeTR::replaceSeq(std::string &subSeq, Location &l)
+{
+	if (l.getEnd() > rBase->size())
+	{
+		std::cerr << "Can't replace beyond the random chromosome! ";
+		std::cerr << l.getEnd() << " " << rBase->size() << std::endl;
+		throw std::exception();
+	}
 	int originalSize = rBase->size();
 	rBase->replace(l.getStart(), l.getEnd() - l.getStart(), subSeq);
-	if(rBase->size() < originalSize){
+	if (rBase->size() < originalSize)
+	{
 		std::cerr << "The base got smaller!" << std::endl;
 		throw std::exception();
-	} else if (rBase->size() > originalSize){
+	}
+	else if (rBase->size() > originalSize)
+	{
 		std::cerr << "The base got bigger!" << std::endl;
 		throw std::exception();
 	}
 }
 
-void ChromosomeTR::replaceSeq(std::string& subSeq, int start, int end){
+void ChromosomeTR::replaceSeq(std::string &subSeq, int start, int end)
+{
 	Location l(start, end);
 	replaceSeq(subSeq, l);
 }
 
-std::string ChromosomeTR::getSubStr(int start, int end){
+std::string ChromosomeTR::getSubStr(int start, int end)
+{
 	return rBase->substr(start, end - start);
 }
 
-void ChromosomeTR::shuffle(){
-
-	std::default_random_engine generator (0);
 
 
- 	std::uniform_int_distribution<int> exactRepeatDistr(init_reg, 20 * init_reg); // init_reg, 20 * init_reg
- 	std::uniform_int_distribution<int> wordSizeDistr(minMotif, maxMotif);
+void ChromosomeTR::setK(int a)
+{
+	if (a <= 0)
+	{
+		std::cerr << "Invalid choice of K (" << a << ")!" << std::endl;
+		throw std::exception();
+	}
+	K = a;
+}
 
- 	int mutationRate = 0;
- 	int globalMutationSum = 0;
- 	int numRepeats  = 0;
+int ChromosomeTR::getK()
+{
+	return K;
+}
 
- 	for(int i = 0; i < getSegment()->size(); i++){
-
- 		int start = getSegment()->at(i)->at(0);
- 		int end = getSegment()->at(i)->at(1) + 1; // The end is inclusive
- 		std::string a = getBase()->substr(start, end - start);
- 		int mutationSum = 0;
- 		// Choose between minK and maxK every time
- 		int wordSize;
- 		std::uniform_int_distribution<int> findPoint(0, 20);
-
-
-
- 		std::reverse(a.begin(), a.end());
- 		std::string b ("");
- 		for(int seqLen = 0; a.size() > 0;){
-
- 			if(a.size() > 20 * init_reg && double(mutationSum) / seqLen < 0.05 && findPoint(generator) == 0){
- 				numRepeats++;
-
- 				int exactLength =  exactRepeatDistr(generator);
- 				while(exactLength > a.size()){
- 					exactLength =  exactRepeatDistr(generator);
- 				}
-
- 				wordSize = wordSizeDistr(generator);
- 				if (exactLength / wordSize < 2){
- 					std::uniform_int_distribution<int> newExactLengthDist(3, 20);
- 					exactLength = wordSize * newExactLengthDist(generator);
- 				}
-
-
- 				int TRSize = (exactLength / wordSize) * wordSize;
- 				std::string motif = a.substr(a.size() - wordSize, wordSize);
- 				std::reverse(motif.begin(), motif.end());
-
- 				std::string newSubSeq = motif::FindMotif::makeExact(motif, TRSize);
-
- 				HandleSeq handleSeq(1, true);
-
- 				auto results = handleSeq.mutate(newSubSeq, mutationRate);
- 				newSubSeq = results.second;
- 				newSubSeq = newSubSeq.substr(0, min(newSubSeq.size(), a.size()));
-
- 				mutationRate++;
- 				mutationRate %= 26;
- 			
-
- 				TRSize = newSubSeq.size();
- 				b += newSubSeq;
- 				repeatList->push_back(newSubSeq);
-
- 				for(int j = 0; j < TRSize; j++){
- 					a.pop_back();
- 				}
- 				regionList->push_back(new Location(b.size() - TRSize + start, b.size() + start));
- 				seqLen += TRSize;
- 				mutationSum += TRSize;
-
- 			} else {
- 				char newChar = a.back();
- 				a.pop_back();
- 				b += newChar;
- 				seqLen++;
- 			}
-
- 		}
- 		// std::cout << start << " " << end << std::endl;
- 		replaceSeq(b, start, start + b.size());
- 		globalMutationSum += mutationSum;
- 	}
-
- 	setK( ceil( log( globalMutationSum / (double) numRepeats) / log(4) ) - 1 ); 
- }
+void ChromosomeTR::printRBase()
+{
+	for (auto it = rBase->begin(); it != rBase->end(); it++)
+	{
+		if (*it == (char)0)
+		{
+			std::cout << 'A';
+		}
+		else if (*it == (char)1)
+		{
+			std::cout << 'C';
+		}
+		else if (*it == (char)2)
+		{
+			std::cout << 'G';
+		}
+		else if (*it == (char)3)
+		{
+			std::cout << 'T';
+		}
+		else
+		{
+			std::cerr << "Unexptected sequence! " << (int)*it << std::endl;
+			throw std::exception();
+		}
+	}
+	std::cout << std::endl;
+}
 
 
- void ChromosomeTR::setK(int a){
- 	if (a <= 0){
- 		std::cerr << "Invalid choice of K (" << a << ")!" << std::endl;
- 		throw std::exception();
- 	}
- 	K = a;
- }
+int ChromosomeTR::size()
+{
+	return rBase->size();
+}
 
- int ChromosomeTR::getK(){
- 	return K;
- }
+std::vector<ILocation *> *ChromosomeTR::getRegionList()
+{
+	return regionList;
+}
 
-
- void ChromosomeTR::printRBase(){
- 	std::cout << *(rBase) << std::endl;
- }
-
- int ChromosomeTR::size(){
- 	return rBase->size();
- }
-
- std::vector<ILocation *> * ChromosomeTR::getRegionList(){
- 	return regionList;
- }
-
- std::vector<std::string> * ChromosomeTR::getRepeatList(){
- 	return repeatList;
- }
+std::vector<std::string> *ChromosomeTR::getRepeatList()
+{
+	return repeatList;
+}

@@ -118,6 +118,7 @@ Predictor<T>::Predictor(const std::string filename) {
 		r_glm = pr.first;
 		feat_r = pr.second;
 	}
+	omp_init_lock(&lock);
 }
 
 template<class T>
@@ -168,6 +169,7 @@ pair<matrix::GLM, Feature<T>*> Predictor<T>::read_from(std::ifstream& in,
 	matrix::GLM glm;
 	int c_num_raw_feat, c_num_combos;
 	Feature<T> *feat = new Feature<T>(k_);
+	feat->set_save(false);
 	std::string buf;
 	in >> buf >> c_num_combos;
 	cout << buf << "\"" << c_num_combos << "\"" << endl;
@@ -259,10 +261,11 @@ double Predictor<T>::similarity(Point<T>* a, Point<T>* b) {
 			if (training.size() < testing.size()
 				&& training.size() < threshold) {
 				training.push_back(pr);
-		} else if (training.size() >= testing.size()
-			&& testing.size() < threshold) {
+		}
+		else if (training.size() >= testing.size() && testing.size() < threshold) {
 			testing.push_back(pr);
-		} else {
+		} 
+		else {
 			is_training = true;
 			train();
 			is_training = false;
@@ -270,7 +273,8 @@ double Predictor<T>::similarity(Point<T>* a, Point<T>* b) {
 		omp_unset_lock(&lock);
 	}
 	return d;
-} else {
+} 
+else {
 	return predict(a, b);
 }
 }
@@ -322,7 +326,13 @@ double Predictor<T>::p_predict(Point<T>* a, Point<T>* b) {
 	} else if (sum > 1) {
 		sum = 1;
 	}
-	return sum;
+
+	if(sum == sum){
+		return sum;
+	} else {
+		return Selector<T>::align(a, b);
+	}
+
 }
 template<class T>
 double Predictor<T>::predict(Point<T>* a, Point<T>* b) {
@@ -395,6 +405,7 @@ std::pair<double, matrix::GLM> regression_train(const vector<pra<T> > &data,
 	auto pr = generate_feat_mat(data, feat, -1);
 	matrix::GLM glm;
 	glm.train(pr.first, pr.second);
+
 	auto result1 = pr.first * glm.get_weights();
 	auto diff1 = result1 - pr.second;
 	double sum = 0;
@@ -402,6 +413,7 @@ std::pair<double, matrix::GLM> regression_train(const vector<pra<T> > &data,
 		sum += fabs(diff1.get(i, 0));
 	}
 	sum /= diff1.getNumRow();
+
 	return {sum, glm};
 }
 
@@ -504,14 +516,14 @@ void Predictor<T>::train() {
 			<< training.size() - pos << endl;
 	*/
 
-			uint64_t tr_size = std::min(pos, training.size() - pos);
+	uint64_t tr_size = std::min(pos, training.size() - pos);
 
-			pos = 0;
-			for (auto p : testing) {
-				if (p.val > id) {
-					pos++;
-				}
-			}
+	pos = 0;
+	for (auto p : testing) {
+		if (p.val > id) {
+			pos++;
+		}
+	}
 	/*
 	cout << "Testing: Positive: " << pos << " Negative: "
 			<< testing.size() - pos << endl;
@@ -612,6 +624,7 @@ void Predictor<T>::train_regr(Feature<T>* feat) {
 	}
 	vector<uintmax_t> used_list;
 	double abs_best_regr = 1000000;
+
 	for (auto num_feat = 1; num_feat <= max_num_feat; num_feat++) {
 		double best_regr_err = abs_best_regr;
 		uintmax_t best_idx = -1, cur_idx = 1;

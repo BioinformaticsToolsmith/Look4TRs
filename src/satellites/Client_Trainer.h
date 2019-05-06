@@ -19,32 +19,32 @@
 #include <chrono>
 #include <ctime>
 
- using namespace std;
- using namespace satellites;
+using namespace std;
+using namespace satellites;
 
- namespace satellites {
- 	class Client_Trainer: public IClient {
- 	public:
- 		Client_Trainer(ChromosomeTR*, HMM*, int, int, int, double, int,
- 			vector<double>&);
- 		virtual ~Client_Trainer();
+namespace satellites {
+	class Client_Trainer: public IClient {
+	public:
+		Client_Trainer(ChromosomeTR*, ChromosomeTR*, HMM*, int, int, int, double, int,
+			vector<double>&);
+		virtual ~Client_Trainer();
 
- 		vector<ILocation*>* getChromSats();
+		vector<ILocation*>* getChromSats();
 
- 		double getPrecision();
- 		double getSensitivity();
- 		double getFMeasure();
- 		void trainPredictor(Predictor<int> *, int);
- 	private:
- 		int champminK;
- 		int champmaxK;
- 		ChromosomeTR * randChrom;
- 		ScorerSat * scorer;
- 		vector<ILocation*>* chromSats;
- 		vector<ILocation*>* trimmedRegions;
+		double getPrecision();
+		double getSensitivity();
+		double getFMeasure();
+		void trainPredictor(Predictor<int> *, int);
+	private:
+		int champminK;
+		int champmaxK;
+		ChromosomeTR * trainChrom;
+		ChromosomeTR * testChrom;
+		ScorerSat * train_scorer;
+		ScorerSat * test_scorer;
+		vector<ILocation*>* chromSats;
 
- 		void train();
- 		void trim();
- 	};
- }
+		void train();
+	};
+}
 #endif

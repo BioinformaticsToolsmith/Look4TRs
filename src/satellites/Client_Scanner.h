@@ -25,22 +25,22 @@ private:
 	// The identify score used by the motif discovery module and filtering
 	double idn;
 
+	// The smoothing window used for finding peaks in the mini and full
+	int smoothingWindow;
 
 	int mtf;
 
 	Predictor<int> * pred;
 	int minReg;
+	int will_merge;
 
 	void decode(ChromosomeOneDigit *, ScorerSat *, vector<ILocation*>*);
-	void decode(vector<vector<utility::ILocation*>*>&, vector<ScorerSat*>*,
-			const vector<ChromosomeOneDigit*>*);
 
 public:
 	Client_Scanner(const vector<ChromosomeOneDigit*>*, HMM*, vector<double>&,
-			int, int, int, double, double, int, Predictor<int> *, int);
+			int, int, int, double, double, int, int, Predictor<int> *, int, bool);
 	virtual ~Client_Scanner();
 
-	// ToDo: convert tuple to a class
 	void get_hmm_sats(
 			vector<
 					tuple<ILocation*, ChromosomeOneDigit *, string, string,

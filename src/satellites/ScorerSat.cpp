@@ -117,6 +117,7 @@ void ScorerSat::processSegment(int start, int end) {
 	int lastBestK = bestKList->at(end - minK + 1);
 	for (int h = end - minK + 2; h <= end; h++) {
 		if (lastBestK < 0) {
+			cerr << lastBestK << endl;
 			throw "The extension amount cannot be negative.\n";
 		}
 		lastBestK = lastBestK - 1;

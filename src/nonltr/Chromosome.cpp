@@ -94,7 +94,7 @@ void Chromosome::finalize() {
 		throw InvalidOperationException(msg);
 	} else if (!(isHeaderReady && isBaseReady)) {
 		string msg(
-				"The header and the sequence must be set before calling finalize");
+			"The header and the sequence must be set before calling finalize");
 		throw InvalidOperationException(msg);
 	} else {
 		help(1000000, true);
@@ -164,8 +164,8 @@ void Chromosome::readFasta() {
 				string msg = "Chromosome file: ";
 				msg = msg + chromFile;
 				msg =
-						msg
-						+ " must have one sequence only. But it has more than one.";
+				msg
+				+ " must have one sequence only. But it has more than one.";
 				throw InvalidInputException(msg);
 			} else {
 				header = line;
@@ -200,8 +200,8 @@ void Chromosome::readFasta(int maxLength) {
 				string msg = "Chromosome file: ";
 				msg = msg + chromFile;
 				msg =
-						msg
-						+ " must have one sequence only. But it has more than one.";
+				msg
+				+ " must have one sequence only. But it has more than one.";
 				throw InvalidInputException(msg);
 			} else {
 				header = line;
@@ -266,6 +266,7 @@ void Chromosome::mergeSegments() {
 
 			if (s1 - e < 10) {
 				e = e1;
+
 			} else {
 				if (e - s + 1 >= 20) {
 					vector<int> * seg = new vector<int>();
@@ -307,7 +308,7 @@ void Chromosome::makeSegmentList() {
 			for (int h = 0; h < fragNum; h++) {
 				int fragStart = s + (h * segLength);
 				int fragEnd =
-						(h == fragNum - 1) ? e : fragStart + segLength - 1;
+				(h == fragNum - 1) ? e : fragStart + segLength - 1;
 				vector<int> * v = new vector<int>();
 				v->push_back(fragStart);
 				v->push_back(fragEnd);
@@ -324,6 +325,59 @@ void Chromosome::makeSegmentList() {
 	Util::deleteInVector(segment);
 	delete segment;
 	segment = segmentList;
+}
+
+
+/**
+* This program will take in a bed file and read in the found sequences that are determined by the bed file.
+* It will return these sequences as a pointer to a vector or strings.
+* Author: Alfredo Velasco
+*/
+std::vector<std::string> * Chromosome::getSequenceFromLocations(std::string bed_file){
+	std::vector<ILocation *> * coor = new std::vector<ILocation *>();
+	Util::readCoordinates(bed_file, coor);
+
+	for(int i = 0; i < coor->size(); i++){
+		if(coor->at(i)->getStart() + coor->at(i)->getLength() >= base.size() && i == 0){
+			for(int j = 0; j < coor->size(); j++){
+				std::cerr << coor->at(j)->toString() << std::endl;
+			}
+			std::cerr << "The locations start after the chromosome!" << std::endl;
+		}
+		else if(coor->at(i)->getStart() + coor->at(i)->getLength() >= base.size()){
+
+			while(coor->size() >= i){
+				delete coor->back();
+				coor->pop_back();
+			}
+		}
+	}
+
+	int coorSum = 0;
+	for(int i = 0; i < coor->size(); i++){
+		coorSum += coor->at(i)->getLength();
+	}
+	std::vector<std::string> * repeatList = new std::vector<std::string>();
+	for(int i = 0; i < coor->size(); i++){
+		ILocation * loc = coor->at(i);
+		std::string repeat = base.substr(loc->getStart(), loc->getLength());
+
+		// Repeats by other tools include N, so we change those to an A.
+		for(int i = 0; i < repeat.size(); i++){
+			if(repeat.at(i) == 'N'){
+				repeat.at(i) = 'A';
+			}
+		}
+		repeatList->push_back(repeat);
+	}
+	int TR_sum = 0;
+	for(int i = 0; i < repeatList->size(); i++){
+		TR_sum += repeatList->at(i).size();
+	}
+	if(coorSum != TR_sum){
+		std::cerr << "The size of the bed file locations (" << coorSum << ") does not agree with the size of the read regions(" << TR_sum << ")!" << std::endl;
+	}
+	return repeatList;
 }
 
 const string* Chromosome::getBase() {
@@ -388,17 +442,17 @@ void Chromosome::makeBaseCount() {
 	int size = base.size();
 	for (int i = 0; i < size; i++) {
 		switch (base.at(i)) {
-		case 'A':
+			case 'A':
 			baseCount->at(0)++;break
 			;			case 'C':
-				baseCount->at(1)++;
-				break;
+			baseCount->at(1)++;
+			break;
 			case 'G':
-				baseCount->at(2)++;
-				break;
+			baseCount->at(2)++;
+			break;
 			case 'T':
-				baseCount->at(3)++;
-				break;
+			baseCount->at(3)++;
+			break;
 		}
 	}
 }

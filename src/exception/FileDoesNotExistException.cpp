@@ -20,6 +20,5 @@ FileDoesNotExistException::FileDoesNotExistException(string massage) {
 }
 
 FileDoesNotExistException::~FileDoesNotExistException() {
-	// TODO Auto-generated destructor stub
 }
 }

@@ -23,7 +23,6 @@ public:
 	void train(matrix::Matrix& features, matrix::Matrix& labels);
 	Matrix predict(matrix::Matrix& features) const;
 	tuple<double, double, double> accuracy(matrix::Matrix& oLabels, matrix::Matrix& pLabels) const;
-	// Needed for FastCar
     const Matrix& get_weights() const { return weights; };
     void load(Matrix weights_) { weights = weights_; }
 };

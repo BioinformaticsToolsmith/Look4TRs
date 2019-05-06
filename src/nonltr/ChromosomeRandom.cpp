@@ -37,7 +37,6 @@
  	ChromosomeRandom::ChromosomeRandom(int nIn, ChromosomeOneDigit* oChromIn,
  		char unreadIn, int length) {
  		canDelete = false;
-
  		initializer(nIn, oChromIn, unreadIn, length);
  	}
 
@@ -59,7 +58,7 @@
 	// Initialize the random sequence
  		oChrom = oChromIn;
  		oBase = oChrom->getBase();
- 		randLength = (length < oBase->size()) ? length : oBase->size();
+ 		randLength = length;
  		rBase = new string(randLength, unread);
 
 	// Initialize the table
@@ -73,6 +72,7 @@
  		printCodes->insert(map<char, char>::value_type((char) 2, 'G'));
  		printCodes->insert(map<char, char>::value_type((char) 3, 'T'));
  		printCodes->insert(map<char, char>::value_type('n', 'n'));
+ 		printCodes->insert(map<char, char>::value_type('N', 'N'));
 
  		randSegmentList = new vector<vector<int> *>();
 
@@ -144,6 +144,14 @@
  			break;
  		}
  	}
+
+ 	// Handle the case when the real chromsome is shorter than
+ 	// the desired length
+ 	auto lastSegment = randSegmentList->back();
+ 	if(lastSegment->at(1) < randLength-1){
+ 		lastSegment->at(1) = randLength-1;
+ 	}
+
 
 	//Post condition
  	for (int i = 0; i < randSegmentList->size(); i++) {
@@ -248,12 +256,14 @@
 	}
 }
 
+
 /**
  * Returns the segments of the original chromosome
  */
  const vector<vector<int> *> * ChromosomeRandom::getSegment() {
  	return randSegmentList;
  }
+
 
 /**
  * Returns the random sequence

@@ -17,8 +17,6 @@ namespace nonltr {
 
 class IChromosome {
 public:
-	//IChromosome();
-	//virtual ~IChromosome();
 	virtual const string* getBase() = 0;
 	virtual const vector<vector<int> *> * getSegment() = 0;
 	virtual string getHeader() = 0;

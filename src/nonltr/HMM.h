@@ -37,7 +37,7 @@ private:
 	void trainPositive(int, int);
 	void trainNegative(int, int);
 	void move(int, int);
-	void checkBase(double);
+	// void checkBase(double);
 
 	inline int getPstvState(int index) {
 		int state = scoreList->at(index);
@@ -56,8 +56,6 @@ private:
 	}
 
 protected:
-	double base;
-	double logBase;
 	int stateNumber;
 	int positiveStateNumber;
 
@@ -65,7 +63,7 @@ protected:
 	const vector<vector<int> *> * segmentList;
 	const vector<ILocation*> * candidateList;
 
-	void initialize(double, int);
+	void initialize(int);
 	/**
 	 * Credit: http://stackoverflow.com/questions/554204/where-is-round-in-c
 	 */
@@ -75,7 +73,7 @@ protected:
 
 public:
 	HMM(string); // Build a model from file
-	HMM(double, int);
+	HMM(int);
 	HMM(HMM&);
 	virtual ~HMM();
 	void train(vector<int> *, const vector<vector<int> *> *,
@@ -92,7 +90,6 @@ public:
 	vector<double> * getPList();
 	vector<vector<double> *> * getTList();
 	vector<double> * getOList();
-	double getBase();
 	int getStateNumber();
 	int getPositiveStateNumber();
 	double getMinusInf();

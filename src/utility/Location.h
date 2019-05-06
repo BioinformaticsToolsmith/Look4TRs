@@ -12,36 +12,33 @@
 
 #include <string>
 
- using namespace std;
+using namespace std;
 
- namespace utility {
+namespace utility {
 
- 	class Location: public ILocation {
- 	private:
- 		int start;
- 		int end;
- 		void initialize(int, int);
- 		void check();
+	class Location: public ILocation {
+	private:
+		int start;
+		int end;
+		void initialize(int, int);
+		void check();
 
- 	public:
- 		Location(int, int);
- 		Location(const ILocation&);
- 		Location(const ILocation*);
- 		virtual ~Location();
+	public:
+		Location(int, int);
+		Location(const ILocation&);
+		Location(const ILocation*);
+		virtual ~Location();
 
- 		int getEnd() const;
- 		int getStart() const;
- 		void setEnd(int);
- 		void setStart(int);
- 		int getLength();
- 		string toString();
+		int getEnd() const;
+		int getStart() const;
+		void setEnd(int);
+		void setStart(int);
+		int getLength();
+		string toString() const;
+		bool operator< (const Location& );
+	};
 
- 	};
 
- 	// std::ostream& operator<< (std::ostream& out, Location& a){
- 	// 	return out;
- 	// }
-
- }
+}
 
 #endif /* LOCATION_H_ */

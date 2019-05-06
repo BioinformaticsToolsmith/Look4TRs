@@ -51,7 +51,7 @@ public:
 	 Mutates a sequence based on parameters inputted in constructor,
 	 	and returns the mutated sequence
 	 */
-	pair<float, string> mutate(string, int);
+	pair<float, string> mutate(string, int, std::vector<int> *);
 private:
 	int mode;
 	int percMute;

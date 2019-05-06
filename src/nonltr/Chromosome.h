@@ -52,6 +52,7 @@ public:
 	virtual void appendToSequence(string&);
 	virtual void finalize();
 	virtual vector<int> * getBaseCount();
+	virtual std::vector<std::string> * getSequenceFromLocations(std::string);
 
 protected:
 	string chromFile;
@@ -69,16 +70,17 @@ protected:
 	virtual void help(int, bool);
 	void makeSegmentList();
 	void calculateEffectiveSize();
+	virtual void makeBaseCount();
+	vector<int> * baseCount;
 
 private:
 	bool isHeaderReady;
 	bool isBaseReady;
 	bool isFinalized;
 	bool canClean = false;
+	int seed = 0;
 
 	void reverseSegments();
-	void makeBaseCount();
-	vector<int> * baseCount;
 };
 }
 

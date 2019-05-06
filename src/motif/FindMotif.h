@@ -27,9 +27,9 @@ private:
 	string foundMotif;
 	bool isFound;
 	double identityScore;
+	int smoothingWindow;
 	double threshold;
 	const int MICRO_MAX_SIZE = 10;
-	const int TOP = 10;
 	string h1;
 	Predictor<int> * pred;
 	Point<int> * seqPoint;

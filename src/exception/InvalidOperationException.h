@@ -18,7 +18,6 @@ namespace exception {
 class InvalidOperationException : public std::runtime_error{
 public:
 	InvalidOperationException(string msg);
-	//virtual ~InvalidOperationException();
 };
 
 }

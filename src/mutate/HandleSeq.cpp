@@ -68,17 +68,16 @@ pair<vector<string>, vector<string>> HandleSeq::parseFile(string fileName) {
 	}
 }
 
-pair<float, string> HandleSeq::mutate(string sequence, int muteRate) {
+pair<float, string> HandleSeq::mutate(string sequence, int muteRate, std::vector<int> * nucls) {
 	percMute = muteRate;
 	if (muteRate == 0) {
 		return std::make_pair(1, sequence);
 	}
-	auto nucls = countNucl(sequence);
-	//Assing the percent of each nucleotide in the sequence
-	int percAs = (nucls.at(0) * 100) / sequence.length();
-	int percCs = (nucls.at(1) * 100) / sequence.length();
-	int percGs = (nucls.at(2) * 100) / sequence.length();
-	int percTs = (nucls.at(3) * 100) / sequence.length();
+	// //Passing the percent of each nucleotide in the sequence
+	int percAs = nucls->at(0);
+	int percCs = nucls->at(1);
+	int percGs = nucls->at(2);
+	int percTs = nucls->at(3);
 	int percMulti, percSing;
 	string * seq = new string(sequence);
 	int length = sequence.length();

@@ -19,7 +19,3 @@ InvalidStateException::InvalidStateException(string msg) :
 	cerr << what() << endl;
 }
 }
-
-//InvalidStateException::~InvalidStateException() {
-// TODO Auto-generated destructor stub
-//}
